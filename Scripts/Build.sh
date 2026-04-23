@@ -295,8 +295,7 @@ elif [[ "$repository" == "Matrix-io" ]]; then
     echo "$repository Repository: All Ruleset Processed!"
 
 else
-    echo "Execute Repository: $repository"
-    echo "Please Execute in NetTool Repository."
-    echo "Please Execute in Matrix-io Repository."
+    echo "Unknown Repository: $repository"
+    echo "Supported NetTool and Matrix-io Repository."
     exit 1
 fi
