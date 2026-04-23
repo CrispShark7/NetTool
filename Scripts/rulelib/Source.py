@@ -278,22 +278,30 @@ def matrix_io_repo(execute_action, mode, repository):
                 execute_action(output_file, source_file)
     print(f"{repository} Repository: All Ruleset Processed!")
 
-def process_source(mode):
+def resolve_repository(repo_arg):
+    env_repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if repo_arg and repo_arg.strip():
+        return repo_arg.strip()
+    if env_repo:
+        return os.path.basename(env_repo.strip())
+    print("Error: No Repository Specified")
+    sys.exit(1)
+
+def process_source(mode, repo=None):
     execute_action = download if mode == "download" else copy
-    repository = os.path.basename(os.environ.get("GITHUB_REPOSITORY", ""))
+    repository = resolve_repository(repo)
     if repository == "NetTool":
         nettool_repo(execute_action, mode, repository)
     elif repository == "Matrix-io":
         matrix_io_repo(execute_action, mode, repository)
     else:
-        print(f"Execute Repository: {repository}")
-        print("Please Execute in NetTool Repository.")
-        print("Please Execute in Matrix-io Repository.")
+        print(f"Unknown Repository: {repository}")
+        print("Supported: NetTool and Matrix-io Repository.")
         sys.exit(1)
 
-"""
 def main():
     parser = argparse.ArgumentParser(description="Rule Content")
+    parser.add_argument("repo", nargs="?")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--download", action="store_true")
     group.add_argument("--copy", action="store_true")
@@ -302,8 +310,7 @@ def main():
     print(f"使用下载规则: {'已启用' if args.download else '未启用'} (--download)")
     print(f"使用复制规则: {'已启用' if args.copy else '未启用'} (--copy)")
     print("======================================")
-    process_source("download" if args.download else "copy")
+    process_source("download" if args.download else "copy", args.repo)
 
 if __name__ == "__main__":
     main()
-"""
