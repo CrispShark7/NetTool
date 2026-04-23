@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: Generate Ruleset
-        run: python Scripts/Build.py NetTool --copy --type
+        run: python Scripts/Build.py NetTool --copy
 
       - name: Convert Ruleset
         run: |
