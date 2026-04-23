@@ -304,7 +304,7 @@ def process_source(mode, repo=None):
         matrix_io_repo(execute_action, mode, repository)
     else:
         print(f"Unknown Repository: {repository}")
-        print("Supported: NetTool and Matrix-io Repository.")
+        print("Supported NetTool and Matrix-io Repository.")
         sys.exit(1)
 
 def main():
