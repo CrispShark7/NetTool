@@ -261,7 +261,7 @@ def run_content_mode(args):
     print(f"使用下载规则: {'已启用' if args.download else '未启用'} (--download)")
     print(f"使用复制规则: {'已启用' if args.copy else '未启用'} (--copy)")
     print("======================================")
-    Source.process_source("download" if args.download else "copy", args.repo)
+    Source.process_file("download" if args.download else "copy", args.repo)
 
 def run_convert_mode(args):
     print("============== Build.py ==============")
