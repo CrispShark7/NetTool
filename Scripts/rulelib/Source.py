@@ -278,7 +278,15 @@ def matrix_io_repo(execute_action, mode, repository):
                 execute_action(output_file, source_file)
     print(f"{repository} Repository: All Ruleset Processed!")
 
-def resolve_repository(repo_arg):
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Rule Content")
+    parser.add_argument("repo", nargs="?")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--download", action="store_true")
+    group.add_argument("--copy", action="store_true")
+    return parser.parse_args()
+
+def resolve_repo(repo_arg):
     env_repo = os.environ.get("GITHUB_REPOSITORY", "")
     if repo_arg and repo_arg.strip():
         return repo_arg.strip()
@@ -289,7 +297,7 @@ def resolve_repository(repo_arg):
 
 def process_source(mode, repo=None):
     execute_action = download if mode == "download" else copy
-    repository = resolve_repository(repo)
+    repository = resolve_repo(repo)
     if repository == "NetTool":
         nettool_repo(execute_action, mode, repository)
     elif repository == "Matrix-io":
@@ -300,12 +308,7 @@ def process_source(mode, repo=None):
         sys.exit(1)
 
 def main():
-    parser = argparse.ArgumentParser(description="Rule Content")
-    parser.add_argument("repo", nargs="?")
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--download", action="store_true")
-    group.add_argument("--copy", action="store_true")
-    args = parser.parse_args()
+    args = parse_arguments()
     print("============== Build.py ==============")
     print(f"使用下载规则: {'已启用' if args.download else '未启用'} (--download)")
     print(f"使用复制规则: {'已启用' if args.copy else '未启用'} (--copy)")
