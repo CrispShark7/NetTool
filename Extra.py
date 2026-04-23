@@ -6,11 +6,11 @@ def capture_file(file_path, platform):
             sys.exit(f"Singbox only supports JSON File: {file_path.suffix}")
         return [file_path]
     if file_path.is_dir():
-        file = [file for file in file_path.iterdir() if file.is_file()]
+        files = [f for f in file_path.iterdir() if f.is_file()]
         if platform == "Singbox":
             files = [f for f in files if f.suffix == ".json"]
-        file = sorted(file)
-        if not file:
+        files = sorted(files)
+        if not files:
             sys.exit(f"No File Found in Directory: {file_path}")
-        return file
+        return files
     sys.exit(f"{file_path} Unknown Type.")
