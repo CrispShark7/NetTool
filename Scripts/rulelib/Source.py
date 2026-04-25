@@ -128,8 +128,8 @@ def source_repo(execute_action, mode, repository):
                 print(f"Exclude {output_rule} for {platform}")
                 continue
             output_file = f"{platform}/Ruleset/{output_rule}.{extension}"
-            source_link = [f"{RULE_SOURCE_LINK}/{rule}" for source_rule]
-            source_file = [f"Ruleset/{rule}" for rule in source_rule]
+            source_link = [f"{RULE_SOURCE_LINK}/{file}" for file in source_rule]
+            source_file = [f"Ruleset/{file}" for file in source_rule]
             if mode == "download":
                 execute_action(output_file, source_link)
             else:
@@ -269,8 +269,8 @@ def matrix_repo(execute_action, mode, repository):
                 print(f"Exclude {output_rule} for {platform}")
                 continue
             output_file = f"{platform}/Ruleset/{output_rule}.{extension}"
-            source_link = [f"{RULE_SOURCE_LINK}/{rule}" for source_rule]
-            source_file = [f"NetTool/Ruleset/{rule}" for rule in source_rule]
+            source_link = [f"{RULE_SOURCE_LINK}/{file}" for file in source_rule]
+            source_file = [f"Ruleset/{file}" for file in source_rule]
             if mode == "download":
                 execute_action(output_file, source_link)
             else:
