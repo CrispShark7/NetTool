@@ -29,7 +29,7 @@ def copy(output_file, source_file):
             except Exception:
                 sys.exit(f"Copy Failed: {file}")
 
-def nettool_repo(execute_action, mode, repository):
+def source_repo(execute_action, mode, repository):
     print(f"Execute in {repository} Repository")
     rule_dir = ["Ruleset", "QuantumultX/Ruleset", "Stash/Ruleset", "Surge/Ruleset"]
     for rule_path in rule_dir:
@@ -128,15 +128,15 @@ def nettool_repo(execute_action, mode, repository):
                 print(f"Exclude {output_rule} for {platform}")
                 continue
             output_file = f"{platform}/Ruleset/{output_rule}.{extension}"
-            source_link = [f"{RULE_SOURCE_LINK}/{source_rule}" for rule in source_rule]
-            source_file = [f"Ruleset/{source_rule}" for rule in source_rule]
+            source_link = [f"{RULE_SOURCE_LINK}/{rule}" for source_rule]
+            source_file = [f"Ruleset/{rule}" for rule in source_rule]
             if mode == "download":
                 execute_action(output_file, source_link)
             else:
                 execute_action(output_file, source_file)
     print(f"{repository} Repository: All Ruleset Processed!")
 
-def matrix_io_repo(execute_action, mode, repository):
+def matrix_repo(execute_action, mode, repository):
     print(f"Execute in {repository} Repository")
     rule_dir = ["Clash", "Egern", "Loon", "QuantumultX", "Shadowrocket", "Sing-box", "Stash", "Surge"]
     for rule_path in rule_dir:
@@ -269,21 +269,13 @@ def matrix_io_repo(execute_action, mode, repository):
                 print(f"Exclude {output_rule} for {platform}")
                 continue
             output_file = f"{platform}/Ruleset/{output_rule}.{extension}"
-            source_link = [f"{RULE_SOURCE_LINK}/{source_rule}" for rule in source_rule]
-            source_file = [f"NetTool/Ruleset/{source_rule}" for rule in source_rule]
+            source_link = [f"{RULE_SOURCE_LINK}/{rule}" for source_rule]
+            source_file = [f"NetTool/Ruleset/{rule}" for rule in source_rule]
             if mode == "download":
                 execute_action(output_file, source_link)
             else:
                 execute_action(output_file, source_file)
     print(f"{repository} Repository: All Ruleset Processed!")
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Rule Content")
-    parser.add_argument("repo", nargs="?")
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--download", action="store_true")
-    group.add_argument("--copy", action="store_true")
-    return parser.parse_args()
 
 def resolve_repo(repo_arg):
     env_repo = os.environ.get("GITHUB_REPOSITORY", "")
@@ -298,16 +290,21 @@ def process_file(mode, repo=None):
     execute_action = download if mode == "download" else copy
     repository = resolve_repo(repo)
     if repository == "NetTool":
-        nettool_repo(execute_action, mode, repository)
+        source_repo(execute_action, mode, repository)
     elif repository == "Matrix-io":
-        matrix_io_repo(execute_action, mode, repository)
+        matrix_repo(execute_action, mode, repository)
     else:
         print(f"Unknown Repository: {repository}")
         print("Supported NetTool and Matrix-io Repository.")
         sys.exit(1)
 
 def main():
-    args = parse_arguments()
+    parser = argparse.ArgumentParser(description="Rule Content")
+    parser.add_argument("repo", nargs="?")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--download", action="store_true")
+    group.add_argument("--copy", action="store_true")
+    args = parser.parse_args()
     print("============== Build.py ==============")
     print(f"使用下载规则: {'已启用' if args.download else '未启用'} (--download)")
     print(f"使用复制规则: {'已启用' if args.copy else '未启用'} (--copy)")
