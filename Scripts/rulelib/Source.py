@@ -286,7 +286,7 @@ def resolve_repo(repo_arg):
     print("Error: No Repository Specified")
     sys.exit(1)
 
-def process_file(mode, repo=None):
+def operate_repo(mode, repo=None):
     execute_action = download if mode == "download" else copy
     repository = resolve_repo(repo)
     if repository == "NetTool":
@@ -309,7 +309,7 @@ def main():
     print(f"使用下载规则: {'已启用' if args.download else '未启用'} (--download)")
     print(f"使用复制规则: {'已启用' if args.copy else '未启用'} (--copy)")
     print("======================================")
-    process_file("download" if args.download else "copy", args.repo)
+    operate_repo("download" if args.download else "copy", args.repo)
 
 if __name__ == "__main__":
     main()
