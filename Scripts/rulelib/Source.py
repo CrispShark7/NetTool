@@ -7,25 +7,25 @@ import urllib.request
 
 RULE_SOURCE_LINK = "https://raw.githubusercontent.com/Centralmatrix3/NetTool/master/Ruleset"
 
-def download(output_file, source_link):
-    with open(output_file, "w", encoding="utf-8") as output:
+def download(target_file, source_link):
+    with open(target_file, "w", encoding="utf-8") as output:
         for link in source_link:
             try:
-                with urllib.request.urlopen(link, timeout=30) as resp:
-                    output.write(resp.read().decode("utf-8"))
+                with urllib.request.urlopen(link, timeout=30) as link_data:
+                    output.write(link_data.read().decode("utf-8"))
                 output.write("\n")
-                print(f"Processed (Download): {link} -> {output_file}")
+                print(f"Processed (Download): {link} -> {target_file}")
             except Exception:
                 sys.exit(f"Download Failed: {link}")
 
-def copy(output_file, source_file):
-    with open(output_file, "w", encoding="utf-8") as output:
+def copy(target_file, source_file):
+    with open(target_file, "w", encoding="utf-8") as output:
         for file in source_file:
             try:
-                with open(file, "r", encoding="utf-8") as f:
-                    output.write(f.read())
+                with open(file, "r", encoding="utf-8") as file_data:
+                    output.write(file_data.read())
                 output.write("\n")
-                print(f"Processed (Copy): {file} -> {output_file}")
+                print(f"Processed (Copy): {file} -> {target_file}")
             except Exception:
                 sys.exit(f"Copy Failed: {file}")
 
@@ -88,8 +88,8 @@ def source_repo(execute_action, mode, repository):
         "Ruleset/USCIDR.list": ["https://raw.githubusercontent.com/Loyalsoldier/geoip/release/text/us.txt"],
         "Ruleset/WeChat.list": ["https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Wechat.list"]
     }
-    for output_file, source_link in rule_extra_source.items():
-        download(output_file, source_link)
+    for target_file, source_link in rule_extra_source.items():
+        download(target_file, source_link)
     rule_local_source = {
         "AdBlock": ["AdBlock.list"],
         "Advertising": ["Advertising.list"],
@@ -122,18 +122,18 @@ def source_repo(execute_action, mode, repository):
         "Stash": set(),
         "Surge": set()
     }
-    for output_rule, source_rule in rule_local_source.items():
+    for target_rule, source_rule in rule_local_source.items():
         for platform, extension in formats.items():
-            if output_rule in exclude.get(platform, set()):
-                print(f"Exclude {output_rule} for {platform}")
+            if target_rule in exclude.get(platform, set()):
+                print(f"Exclude {target_rule} for {platform}")
                 continue
-            output_file = f"{platform}/Ruleset/{output_rule}.{extension}"
-            source_link = [f"{RULE_SOURCE_LINK}/{file}" for file in source_rule]
-            source_file = [f"Ruleset/{file}" for file in source_rule]
+            target_file = f"{platform}/Ruleset/{target_rule}.{extension}"
+            source_link = [f"{RULE_SOURCE_LINK}/{rule_file}" for rule_file in source_rule]
+            source_file = [f"Ruleset/{rule_file}" for rule_file in source_rule]
             if mode == "download":
-                execute_action(output_file, source_link)
+                execute_action(target_file, source_link)
             else:
-                execute_action(output_file, source_file)
+                execute_action(target_file, source_file)
     print(f"{repository} Repository: All Ruleset Processed!")
 
 def matrix_repo(execute_action, mode, repository):
@@ -263,18 +263,18 @@ def matrix_repo(execute_action, mode, repository):
         "Stash": set(),
         "Surge": set()
     }
-    for output_rule, source_rule in rule_local_source.items():
+    for target_rule, source_rule in rule_local_source.items():
         for platform, extension in formats.items():
-            if output_rule in exclude.get(platform, set()):
-                print(f"Exclude {output_rule} for {platform}")
+            if target_rule in exclude.get(platform, set()):
+                print(f"Exclude {target_rule} for {platform}")
                 continue
-            output_file = f"{platform}/Ruleset/{output_rule}.{extension}"
-            source_link = [f"{RULE_SOURCE_LINK}/{file}" for file in source_rule]
-            source_file = [f"Ruleset/{file}" for file in source_rule]
+            target_file = f"{platform}/Ruleset/{target_rule}.{extension}"
+            source_link = [f"{RULE_SOURCE_LINK}/{rule_file}" for rule_file in source_rule]
+            source_file = [f"NetTool/Ruleset/{rule_file}" for rule_file in source_rule]
             if mode == "download":
-                execute_action(output_file, source_link)
+                execute_action(target_file, source_link)
             else:
-                execute_action(output_file, source_file)
+                execute_action(target_file, source_file)
     print(f"{repository} Repository: All Ruleset Processed!")
 
 def resolve_repo(repo_arg):
