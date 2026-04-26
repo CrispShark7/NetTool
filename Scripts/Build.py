@@ -4,9 +4,9 @@ import argparse
 import sys
 import re
 import json
+import rulelib
 import ipaddress
 import dataclasses
-from rulelib import Source
 from pathlib import Path
 from collections import defaultdict
 
@@ -18,39 +18,32 @@ RULE_TYPE_ORDER = [
     "IP-CIDR", "IP-CIDR6",
     "IP-ASN", "GEOIP"
 ]
-RULE_TYPE_PATCH = {"USER-AGENT", "URL-REGEX", "PROTOCOL", "PROCESS-NAME"}
+RULE_TYPE_PATCH = {
+    "USER-AGENT", "URL-REGEX",
+    "PROTOCOL", "PROCESS-NAME"
+}
 RULE_TYPE_INDEX = {rule: index for index, rule in enumerate(RULE_TYPE_ORDER)}
 RULE_TYPE_KNOWN = frozenset(RULE_TYPE_ORDER) | RULE_TYPE_PATCH
 
 EGERN_RULE_MAP = {
-    "DOMAIN": "domain_set",
-    "DOMAIN-SUFFIX": "domain_suffix_set",
-    "DOMAIN-KEYWORD": "domain_keyword_set",
-    "DOMAIN-WILDCARD": "domain_wildcard_set",
-    "IP-CIDR": "ip_cidr_set",
-    "IP-CIDR6": "ip_cidr6_set",
-    "IP-ASN": "asn_set",
-    "GEOIP": "geoip_set"
+    "DOMAIN": "domain_set", "DOMAIN-SUFFIX": "domain_suffix_set",
+    "DOMAIN-KEYWORD": "domain_keyword_set", "DOMAIN-WILDCARD": "domain_wildcard_set",
+    "IP-CIDR": "ip_cidr_set", "IP-CIDR6": "ip_cidr6_set",
+    "IP-ASN": "asn_set", "GEOIP": "geoip_set"
 }
 EGERN_RULE_QUOTE = {"domain_wildcard_set"}
 
 QUANTUMULTX_RULE_MAP = {
-    "DOMAIN": "HOST",
-    "DOMAIN-SUFFIX": "HOST-SUFFIX",
-    "DOMAIN-KEYWORD": "HOST-KEYWORD",
-    "DOMAIN-WILDCARD": "HOST-WILDCARD",
-    "IP-CIDR": "IP-CIDR",
-    "IP-CIDR6": "IP6-CIDR",
-    "IP-ASN": "IP-ASN",
-    "GEOIP": "GEOIP"
+    "DOMAIN": "HOST", "DOMAIN-SUFFIX": "HOST-SUFFIX",
+    "DOMAIN-KEYWORD": "HOST-KEYWORD", "DOMAIN-WILDCARD": "HOST-WILDCARD",
+    "IP-CIDR": "IP-CIDR", "IP-CIDR6": "IP6-CIDR",
+    "IP-ASN": "IP-ASN", "GEOIP": "GEOIP"
 }
 
 SINGBOX_RULE_MAP = {
-    "DOMAIN": "domain",
-    "DOMAIN-SUFFIX": "domain_suffix",
+    "DOMAIN": "domain", "DOMAIN-SUFFIX": "domain_suffix",
     "DOMAIN-KEYWORD": "domain_keyword",
-    "IP-CIDR": "ip_cidr",
-    "IP-CIDR6": "ip_cidr"
+    "IP-CIDR": "ip_cidr", "IP-CIDR6": "ip_cidr"
 }
 
 STASH_RULE_DOMAIN = {"AdBlock", "Advertising", "DIRECT", "GreatFireWall", "PROXY", "REJECT"}
@@ -190,23 +183,17 @@ def parse_arguments():
     parser.add_argument("--unknown-rule", action=argparse.BooleanOptionalAction)
     return parser.parse_args()
 """
-
-def parse_content_arguments():
-    parser = argparse.ArgumentParser(description="Rule Content")
-    parser.add_argument("repo", nargs="?", help="Repository Name")
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--download", action="store_true")
-    group.add_argument("--copy", action="store_true")
-    return parser.parse_args()
-
-def parse_convert_arguments():
+def parse_arguments():
     parser = argparse.ArgumentParser(description="Rule Convert")
-    parser.add_argument("platform", choices=["Egern", "QuantumultX", "Singbox", "Stash", "Surge"])
-    parser.add_argument("file_path", type=Path)
+    parser.add_argument("platform", nargs="?", choices=["Egern", "QuantumultX", "Singbox", "Stash", "Surge"])
+    parser.add_argument("file_path", nargs="?", type=Path)
     parser.add_argument("--type", action=argparse.BooleanOptionalAction)
     parser.add_argument("--param", action=argparse.BooleanOptionalAction)
     parser.add_argument("--order", action=argparse.BooleanOptionalAction)
     parser.add_argument("--unknown-rule", action=argparse.BooleanOptionalAction)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--download", action="store_true")
+    group.add_argument("--copy", action="store_true")
     return parser.parse_args()
 
 def capture_file(file_path, platform):
@@ -220,10 +207,7 @@ def capture_file(file_path, platform):
         file = [file for file in file_path.iterdir() if file.is_file()]
         if platform == "Singbox":
             file = [file for file in file if file.suffix == ".json"]
-        file = sorted(file)
-        if not file:
-            sys.exit(f"No File Found in: {file_path}")
-        return file
+        return sorted(file)
     sys.exit(f"{file_path} Unknown Type.")
 
 def process_file(file_list, args):
@@ -242,12 +226,18 @@ def process_file(file_list, args):
 def main():
     args = parse_arguments()
     print("============== Build.py ==============")
-    print(f"添加规则类型: {'已启用' if args.type else '未启用'} (--type)")
-    print(f"添加规则参数: {'已启用' if args.param else '未启用'} (--param)")
-    print(f"排序规则去重: {'已启用' if args.order else '未启用'} (--order)")
-    print(f"未知规则保留: {'已启用' if args.unknown_rule else '未启用'} (--unknown_rule)")
+    for name, enabled in [
+        ("添加规则类型", args.type),
+        ("添加规则参数", args.param),
+        ("排序规则去重", args.order),
+        ("未知规则保留", args.unknown_rule)
+    ]:
+        print(f"{name}: {'已启用' if enabled else '未启用'}")
     print("======================================")
     file = capture_file(args.file_path, args.platform)
+    if not file:
+        print(f"No File Found in: {args.file_path}")
+        return
     print(f"Platform: {args.platform}")
     print(f"Processed {len(file)} file(s) in: {args.file_path}")
     process_file(file, args)
@@ -257,32 +247,49 @@ if __name__ == "__main__":
 """
 
 def run_content_mode(args):
+    if any([
+        args.platform, args.file_path,
+        args.type, args.param,
+        args.order, args.unknown_rule,
+    ]):
+        sys.exit("Error: --download 和 --copy 不能与转换模式一起使用")
     print("============== Build.py ==============")
-    print(f"使用下载规则: {'已启用' if args.download else '未启用'} (--download)")
-    print(f"使用复制规则: {'已启用' if args.copy else '未启用'} (--copy)")
+    for name, enabled in [
+        ("使用下载规则", args.download),
+        ("使用复制规则", args.copy)
+    ]:
+        print(f"{name}: {'已启用' if enabled else '未启用'}")
     print("======================================")
-    Source.process_file("download" if args.download else "copy", args.repo)
+    Source.process_source("download" if args.download else "copy")
 
 def run_convert_mode(args):
+    if not args.platform or not args.file_path:
+        sys.exit("Error: 转换模式请提供平台(platform)文件或路径")
     print("============== Build.py ==============")
-    print(f"添加规则类型: {'已启用' if args.type else '未启用'} (--type)")
-    print(f"添加规则参数: {'已启用' if args.param else '未启用'} (--param)")
-    print(f"排序规则去重: {'已启用' if args.order else '未启用'} (--order)")
-    print(f"未知规则保留: {'已启用' if args.unknown_rule else '未启用'} (--unknown_rule)")
+    for name, enabled in [
+        ("添加规则类型", args.type),
+        ("添加规则参数", args.param),
+        ("排序规则去重", args.order),
+        ("未知规则保留", args.unknown_rule)
+    ]:
+        print(f"{name}: {'已启用' if enabled else '未启用'}")
     print("======================================")
     file = capture_file(args.file_path, args.platform)
+    if not file:
+        print(f"No File Found in: {args.file_path}")
+        return
     print(f"Platform: {args.platform}")
     print(f"Processed {len(file)} file(s) in: {args.file_path}")
     process_file(file, args)
 
 def main():
-    argv = sys.argv
-    if "--copy" in argv or "--download" in argv:
-        args = parse_content_arguments()
+    args = parse_arguments()
+    if args.download or args.copy:
         run_content_mode(args)
-        return
-    args = parse_convert_arguments()
-    run_convert_mode(args)
+    elif args.platform and args.file_path:
+        run_convert_mode(args)
+    else:
+        sys.exit("Error: 请使用 --download/--copy，或提供 platform 和 file_path 进行规则转换")
 
 if __name__ == "__main__":
     main()
