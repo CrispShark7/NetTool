@@ -5,7 +5,7 @@ import sys
 import argparse
 import urllib.request
 
-RULE_SOURCE_LINK = "https://raw.githubusercontent.com/Centralmatrix3/NetTool/master/Ruleset"
+RULESET_BASE_URL = "https://raw.githubusercontent.com/Centralmatrix3/NetTool/master/Ruleset"
 
 def download(target_file, source_link):
     with open(target_file, "w", encoding="utf-8") as output:
