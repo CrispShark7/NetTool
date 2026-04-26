@@ -10,7 +10,7 @@ import dataclasses
 from pathlib import Path
 from collections import defaultdict
 
-INLINE_COMMENTS = re.compile(r"(?<!:)//.*$")
+COMMENT_PATTERN = re.compile(r"(?<!:)//.*$")
 
 RULE_TYPE_ORDER = [
     "DOMAIN", "DOMAIN-SUFFIX",
@@ -57,7 +57,7 @@ class RuleSet:
     name: str; rules: list = dataclasses.field(default_factory=list)
 
 def process_parse(line, enable_type=False, enable_param=False):
-    line = INLINE_COMMENTS.sub("", line).strip()
+    line = COMMENT_PATTERN.sub("", line).strip()
     if not line or line.startswith("#"):
         return None
     parts = line.split(",", 2)
