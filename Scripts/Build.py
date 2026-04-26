@@ -13,17 +13,18 @@ from collections import defaultdict
 COMMENT_PATTERN = re.compile(r"(?<!:)//.*$")
 
 RULE_TYPE_ORDER = [
-    "DOMAIN", "DOMAIN-SUFFIX",
-    "DOMAIN-KEYWORD", "DOMAIN-WILDCARD",
-    "IP-CIDR", "IP-CIDR6",
-    "IP-ASN", "GEOIP"
+    "DOMAIN",
+    "DOMAIN-SUFFIX",
+    "DOMAIN-KEYWORD",
+    "DOMAIN-WILDCARD",
+    "IP-CIDR",
+    "IP-CIDR6",
+    "IP-ASN",
+    "GEOIP"
 ]
-RULE_TYPE_PATCH = {
-    "USER-AGENT", "URL-REGEX",
-    "PROTOCOL", "PROCESS-NAME"
-}
+RULE_TYPE_EXTRA = {"USER-AGENT", "URL-REGEX", "PROTOCOL", "PROCESS-NAME"}
 RULE_TYPE_INDEX = {rule: index for index, rule in enumerate(RULE_TYPE_ORDER)}
-RULE_TYPE_KNOWN = frozenset(RULE_TYPE_ORDER) | RULE_TYPE_PATCH
+RULE_TYPE_KNOWN = frozenset(RULE_TYPE_ORDER) | RULE_TYPE_EXTRA
 
 EGERN_RULE_MAP = {
     "DOMAIN": "domain_set", "DOMAIN-SUFFIX": "domain_suffix_set",
